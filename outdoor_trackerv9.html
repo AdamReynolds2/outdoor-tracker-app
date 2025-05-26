@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outdoor Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for better content flow */
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-bottom: 120px; /* Added padding to prevent content from being hidden by sticky footer */
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px; /* Max width for larger screens */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .timer-display {
+            font-size: 3.5rem; /* Larger timer font */
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping for more buttons */
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* Rounded buttons */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* Blue */
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #64748b; /* Gray */
+            color: white;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #475569;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background-color: #22c55e; /* Green */
+            color: white;
+        }
+        .btn-success:hover:not(:disabled) {
+            background-color: #16a34a;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background-color: #ef4444; /* Red */
+            color: white;
+        }
+        .btn-danger:hover:not(:disabled) {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+        }
+        .btn-google {
+            background-color: #DB4437; /* Google Red */
+            color: white;
+        }
+        .btn-google:hover:not(:disabled) {
+            background-color: #C3352A;
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .section-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .entry-item {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .entry-item-details {
+            flex-grow: 1;
+        }
+        .entry-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #334155;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #334155;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .analytics-item {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* --- Sticky Navigation Styles --- */
+        .footer-nav {
+            position: fixed; /* Make it sticky */
+            bottom: 0;      /* Stick to the bottom */
+            left: 0;        /* Align to the left edge */
+            width: 100%;    /* Take full width */
+            background-color: #ffffff; /* Solid background */
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Shadow to lift it from content */
+            z-index: 999;   /* Ensure it's above other content */
+            padding: 1rem 0; /* Vertical padding */
+            display: flex;
+            flex-direction: column; /* Stack by default for mobile */
+            justify-content: center; /* Center horizontally when stacked */
+            align-items: center; /* Center items when stacked */
+            gap: 0.75rem; /* Space between stacked buttons */
+            border-top: 1px solid #e2e8f0; /* Keep the border top */
+        }
+        .footer-nav-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s;
+            width: 100%; /* Make buttons full width when stacked */
+            max-width: 200px; /* Limit max width for stacked buttons */
+            text-align: center;
+        }
+        .footer-nav-btn:hover {
+            color: #3b82f6;
+            background-color: #e2e8f0;
+        }
+        .footer-nav-btn.active {
+            color: #3b82f6;
+            background-color: #e2e8f0;
+        }
+
+        /* Media query for larger screens (e.g., sm breakpoint in Tailwind) */
+        @media (min-width: 640px) {
+            .footer-nav {
+                flex-direction: row; /* Back to row for larger screens */
+                justify-content: space-around; /* Spread out again */
+                gap: 1rem; /* Adjust horizontal gap */
+            }
+            .footer-nav-btn {
+                width: auto; /* Revert to auto width for horizontal layout */
+                max-width: none; /* No max width restriction */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Outdoor Tracker</h1>
+
+        <div id="main-screen" class="space-y-4">
+            <div class="timer-display" id="timer-display">00:00:00</div>
+            <div class="button-group">
+                <button id="start-timer-btn" class="btn btn-primary">Start</button>
+                <button id="stop-timer-btn" class="btn btn-danger" disabled>Stop</button>
+            </div>
+            <h2 class="text-xl font-semibold text-center text-gray-700 mt-4">Total Time Spent Outside: <span id="total-time-display">0 hours 0 minutes</span></h2>
+
+            </div>
+
+        <div id="manual-entry-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 class="section-header">Add Manual Entry</h2>
+                <div class="form-group">
+                    <label for="manual-hours">Hours:</label>
+                    <input type="number" id="manual-hours" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="manual-minutes">Minutes:</label>
+                    <input type="number" id="manual-minutes" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="manual-date">Date:</label>
+                    <input type="date" id="manual-date">
+                </div>
+                <div class="form-group">
+                    <label for="manual-notes">Notes (Optional):</label>
+                    <textarea id="manual-notes" rows="3" placeholder="e.g., Park walk, Gardening"></textarea>
+                </div>
+                <div class="button-group mt-6">
+                    <button id="save-manual-btn" class="btn btn-success">Save Entry</button>
+                    <button id="cancel-manual-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="edit-entry-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 class="section-header">Edit Entry</h2>
+                <input type="hidden" id="edit-entry-id">
+                <div class="form-group">
+                    <label for="edit-hours">Hours:</label>
+                    <input type="number" id="edit-hours" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-minutes">Minutes:</label>
+                    <input type="number" id="edit-minutes" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-date">Date:</label>
+                    <input type="date" id="edit-date">
+                </div>
+                <div class="form-group">
+                    <label for="edit-notes">Notes (Optional):</label>
+                    <textarea id="edit-notes" rows="3"></textarea>
+                </div>
+                <div class="button-group mt-6">
+                    <button id="update-entry-btn" class="btn btn-success">Update Entry</button>
+                    <button id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-entries-section" class="hidden space-y-4">
+            <h2 class="section-header">All Entries</h2>
+            <div id="entries-list" class="space-y-3">
+                </div>
+            </div>
+
+        <div id="analytics-section" class="hidden space-y-4">
+            <h2 class="section-header">Monthly Analytics</h2>
+            <div id="monthly-analytics-list" class="space-y-3">
+                </div>
+            </div>
+
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <div class="footer-nav">
+        <button id="nav-home-btn" class="footer-nav-btn active">Home</button>
+        <button id="nav-add-manual-btn" class="footer-nav-btn">Add Manual</button>
+        <button id="nav-view-entries-btn" class="footer-nav-btn">Entries</button>
+        <button id="nav-analytics-btn" class="footer-nav-btn">Analytics</button>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase config and app ID
+        const appId = 'outdoor-tracking-data';
+        const firebaseConfig = {
+            apiKey: "AIzaSyApytT8XeDhgx48WuIlzU9-0WytatCD44A",
+            authDomain: "outdoor-tracker-1c964.firebaseapp.com",
+            projectId: "outdoor-tracker-1c964",
+            storageBucket: "outdoor-tracker-1c964.firebasestorage.app",
+            messagingSenderId: "408417096059",
+        };
+        
+        // Firebase app and services
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+        let firestoreUnsubscribe = null; // Global variable to hold the unsubscribe function
+
+        // UI Elements
+        const timerDisplay = document.getElementById('timer-display');
+        const startTimerBtn = document.getElementById('start-timer-btn');
+        const stopTimerBtn = document.getElementById('stop-timer-btn');
+        const totalTimeDisplay = document.getElementById('total-time-display');
+        const entriesList = document.getElementById('entries-list');
+        const monthlyAnalyticsList = document.getElementById('monthly-analytics-list');
+        const messageBox = document.getElementById('message-box');
+
+        // Modals and Sections
+        const mainScreen = document.getElementById('main-screen');
+        const manualEntryModal = document.getElementById('manual-entry-modal');
+        const editEntryModal = document.getElementById('edit-entry-modal');
+        const viewEntriesSection = document.getElementById('view-entries-section');
+        const analyticsSection = document.getElementById('analytics-section'); 
+
+        // Manual Entry Form Elements
+        const manualHoursInput = document.getElementById('manual-hours');
+        const manualMinutesInput = document.getElementById('manual-minutes');
+        const manualDateInput = document.getElementById('manual-date');
+        const manualNotesInput = document.getElementById('manual-notes');
+        const saveManualBtn = document.getElementById('save-manual-btn');
+        const cancelManualBtn = document.getElementById('cancel-manual-btn');
+
+        // Edit Entry Form Elements
+        const editEntryIdInput = document.getElementById('edit-entry-id');
+        const editHoursInput = document.getElementById('edit-hours');
+        const editMinutesInput = document.getElementById('edit-minutes');
+        const editDateInput = document.getElementById('edit-date');
+        const editNotesInput = document.getElementById('edit-notes');
+        const updateEntryBtn = document.getElementById('update-entry-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+        // Navigation Buttons (Main Screen - now only one set of nav buttons)
+        const navHomeBtn = document.getElementById('nav-home-btn');
+        const navAddManualBtn = document.getElementById('nav-add-manual-btn');
+        const navViewEntriesBtn = document.getElementById('nav-view-entries-btn');
+        const navAnalyticsBtn = document.getElementById('nav-analytics-btn');
+
+        // Timer variables
+        let timerInterval;
+        let startTime;
+        let isRunning = false;
+        let currentDurationMs = 0;
+
+        // Store all entries fetched from Firestore
+        let allTimeEntries = [];
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         * Sets up an auth state listener to get the user ID.
+         */
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                console.log("Firebase app initialized.");
+
+                // Listen for auth state changes
+                onAuthStateChanged(auth, async (user) => {
+                    console.log("onAuthStateChanged triggered. User:", user ? user.uid : "null");
+                    if (user) {
+                        const currentUserId = user.uid;
+                        // Only re-setup listener if user ID changes or if auth wasn't ready
+                        if (userId !== currentUserId || !isAuthReady) {
+                            userId = currentUserId;
+                            console.log("Firebase User ID set to:", userId);
+                            isAuthReady = true;
+                            setupFirestoreListener(); // Always set up listener once auth is ready
+                        } else {
+                            console.log("User ID unchanged or auth already ready. Not re-attaching listener.");
+                        }
+                    } else {
+                        userId = null;
+                        isAuthReady = false;
+                        // If no user, detach listener to prevent errors
+                        if (firestoreUnsubscribe) {
+                            firestoreUnsubscribe();
+                            console.log("Detached Firestore listener due to no user.");
+                            firestoreUnsubscribe = null; // Clear the reference
+                        }
+                        console.log("Attempting anonymous sign-in...");
+                        await signInAnonymously(auth);
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage("Failed to initialize app. Please try again later.", "error");
+            }
+        }
+
+        /**
+         * Displays a temporary message box.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success' or 'error' (optional, for styling)
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = `message-box show ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-gray-800'}`;
+            setTimeout(() => {
+                messageBox.className = 'message-box';
+            }, 3000);
+        }
+
+        /**
+         * Formats milliseconds into HH:MM:SS.
+         * @param {number} ms - Duration in milliseconds.
+         * @returns {string} Formatted time string.
+         */
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return [hours, minutes, seconds]
+                .map(unit => unit.toString().padStart(2, '0'))
+                .join(':');
+        }
+
+        /**
+         * Formats milliseconds into human-readable hours and minutes.
+         * @param {number} ms - Duration in milliseconds.
+         * @returns {string} Human-readable string.
+         */
+        function formatDurationHuman(ms) {
+            const totalMinutes = Math.floor(ms / (1000 * 60));
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            if (hours > 0) {
+                return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+            } else {
+                return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+            }
+        }
+
+        /**
+         * Starts the timer.
+         */
+        function startTimer() {
+            if (isRunning) return;
+            startTime = Date.now() - currentDurationMs; // Resume from previous duration if paused
+            isRunning = true;
+            startTimerBtn.disabled = true;
+            stopTimerBtn.disabled = false;
+
+            timerInterval = setInterval(() => {
+                currentDurationMs = Date.now() - startTime;
+                timerDisplay.textContent = formatTime(currentDurationMs);
+            }, 1000);
+            showMessage("Timer started!", "success");
+        }
+
+        /**
+         * Stops the timer and records the entry.
+         */
+        async function stopTimer() {
+            if (!isRunning) return;
+            clearInterval(timerInterval);
+            isRunning = false;
+            startTimerBtn.disabled = false;
+            stopTimerBtn.disabled = true;
+
+            if (currentDurationMs > 0) {
+                const entryDate = new Date().toISOString().split('T')[0]; //YYYY-MM-DD
+                const newEntry = {
+                    durationMs: currentDurationMs,
+                    type: 'timer',
+                    date: entryDate,
+                    notes: '', // Timer entries don't have notes by default
+                    createdAt: Date.now()
+                };
+                console.log("Attempting to add timer entry:", newEntry);
+                await addTimeEntry(newEntry);
+                currentDurationMs = 0; // Reset for next timer session
+                timerDisplay.textContent = "00:00:00"; // Reset display
+                showMessage("Time recorded!", "success");
+            } else {
+                showMessage("Timer stopped, but no time was recorded.", "info");
+            }
+        }
+
+        /**
+         * Adds a new time entry to Firestore.
+         * @param {object} entryData - The data for the new entry.
+         */
+        async function addTimeEntry(entryData) {
+            if (!isAuthReady || !userId) {
+                console.warn("addTimeEntry: Authentication not ready or userId missing. isAuthReady:", isAuthReady, "userId:", userId);
+                showMessage("Authentication not ready. Please wait.", "error");
+                return;
+            }
+            try {
+                const docRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/time_entries`), entryData);
+                console.log("Document written with ID: ", docRef.id, "Data:", entryData);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showMessage("Failed to save entry. Please try again.", "error");
+            }
+        }
+
+        /**
+         * Updates an existing time entry in Firestore.
+         * @param {string} id - The ID of the entry to update.
+         * @param {object} updatedData - The updated data for the entry.
+         */
+        async function updateTimeEntry(id, updatedData) {
+            if (!isAuthReady || !userId) {
+                console.warn("updateTimeEntry: Authentication not ready or userId missing.");
+                showMessage("Authentication not ready. Please wait.", "error");
+                return;
+            }
+            try {
+                const entryRef = doc(db, `artifacts/${appId}/users/${userId}/time_entries`, id);
+                await updateDoc(entryRef, updatedData);
+                console.log("Document updated with ID: ", id, "Updated Data:", updatedData);
+                showMessage("Entry updated successfully!", "success");
+            } catch (e) {
+                console.error("Error updating document: ", e);
+                showMessage("Failed to update entry. Please try again.", "error");
+            }
+        }
+
+        /**
+         * Deletes a time entry from Firestore.
+         * @param {string} id - The ID of the entry to delete.
+         */
+        async function deleteTimeEntry(id) {
+            if (!isAuthReady || !userId) {
+                showMessage("Authentication not ready. Please wait.", "error");
+                return;
+            }
+            try {
+                const entryRef = doc(db, `artifacts/${appId}/users/${userId}/time_entries`, id);
+                await deleteDoc(entryRef);
+                console.log("Document deleted with ID: ", id);
+                showMessage("Entry deleted successfully!", "success");
+            } catch (e) {
+                console.error("Error deleting document: ", e);
+                showMessage("Failed to delete entry. Please try again.", "error");
+            }
+        }
+
+        /**
+         * Sets up a real-time listener for time entries from Firestore.
+         * Updates UI when data changes.
+         */
+        function setupFirestoreListener() {
+            if (!isAuthReady || !userId) {
+                console.warn("setupFirestoreListener: Auth not ready or userId missing. Cannot attach listener.");
+                return;
+            }
+
+            // Detach any existing listener before attaching a new one
+            if (firestoreUnsubscribe) {
+                firestoreUnsubscribe();
+                console.log("Detaching existing Firestore listener.");
+            }
+
+            const q = collection(db, `artifacts/${appId}/users/${userId}/time_entries`);
+            // Data will be sorted in memory as orderBy can lead to index issues without explicit index creation.
+            firestoreUnsubscribe = onSnapshot(q, (snapshot) => { // Store the unsubscribe function
+                console.log("Firestore snapshot received. Number of documents:", snapshot.size);
+                allTimeEntries = [];
+                snapshot.forEach((doc) => {
+                    allTimeEntries.push({ id: doc.id, ...doc.data() });
+                });
+                console.log("allTimeEntries after snapshot processing:", allTimeEntries);
+                allTimeEntries.sort((a, b) => b.createdAt - a.createdAt); // Sort in memory
+                updateUI();
+                console.log("UI updated after snapshot.");
+            }, (error) => {
+                console.error("Error fetching documents with onSnapshot: ", error);
+                showMessage("Failed to load entries. Check console for details.", "error");
+            });
+            console.log("Firestore listener attached for userId:", userId);
+        }
+
+        /**
+         * Updates all UI elements based on the current allTimeEntries array.
+         */
+        function updateUI() {
+            console.log("updateUI called.");
+            updateTotalTime();
+            renderEntriesList();
+            renderMonthlyAnalytics();
+            console.log("updateUI finished.");
+        }
+
+        /**
+         * Calculates and displays the total time spent outside.
+         */
+        function updateTotalTime() {
+            console.log("updateTotalTime called.");
+            const totalDurationMs = allTimeEntries.reduce((sum, entry) => sum + entry.durationMs, 0);
+            totalTimeDisplay.textContent = formatDurationHuman(totalDurationMs);
+            console.log("Total time updated to:", formatDurationHuman(totalDurationMs));
+        }
+
+        /**
+         * Renders the list of all time entries.
+         */
+        function renderEntriesList() {
+            console.log("renderEntriesList called.");
+            entriesList.innerHTML = ''; // Clear existing list
+            if (allTimeEntries.length === 0) {
+                entriesList.innerHTML = '<p class="text-center text-gray-500">No entries yet. Start tracking or add manually!</p>';
+                console.log("No entries to render.");
+                return;
+            }
+
+            allTimeEntries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'entry-item';
+                const entryDate = new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                entryElement.innerHTML = `
+                    <div class="entry-item-details">
+                        <p class="text-lg font-semibold text-gray-800">${formatDurationHuman(entry.durationMs)}</p>
+                        <p class="text-sm text-gray-600">Date: ${entryDate}</p>
+                        <p class="text-sm text-gray-600">Source: ${entry.type === 'timer' ? 'Timer' : 'Manual'}</p>
+                        ${entry.notes ? `<p class="text-sm text-gray-600">Notes: ${entry.notes}</p>` : ''}
+                    </div>
+                    <div class="entry-item-actions">
+                        <button class="btn btn-secondary btn-sm edit-entry-btn" data-id="${entry.id}">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-entry-btn" data-id="${entry.id}">Delete</button>
+                    </div>
+                `;
+                entriesList.appendChild(entryElement);
+            });
+
+            // Attach event listeners to newly created buttons
+            document.querySelectorAll('.edit-entry-btn').forEach(button => {
+                button.onclick = (event) => openEditModal(event.target.dataset.id);
+            });
+            document.querySelectorAll('.delete-entry-btn').forEach(button => {
+                button.onclick = (event) => {
+                    if (confirm("Are you sure you want to delete this entry?")) {
+                        deleteTimeEntry(event.target.dataset.id);
+                    }
+                };
+            });
+            console.log("Entries list rendered. Total entries:", allTimeEntries.length);
+        }
+
+        /**
+         * Renders the monthly analytics breakdown.
+         */
+        function renderMonthlyAnalytics() {
+            console.log("renderMonthlyAnalytics called.");
+            monthlyAnalyticsList.innerHTML = ''; // Clear existing list
+            if (allTimeEntries.length === 0) {
+                monthlyAnalyticsList.innerHTML = '<p class="text-center text-gray-500">No data for analytics yet.</p>';
+                console.log("No data for analytics.");
+                return;
+            }
+
+            const monthlyData = {};
+            allTimeEntries.forEach(entry => {
+                // Assuming entry.date is 'YYYY-MM-DD'
+                const yearMonth = entry.date.substring(0, 7); // 'YYYY-MM'
+                if (!monthlyData[yearMonth]) {
+                    monthlyData[yearMonth] = 0;
+                }
+                monthlyData[yearMonth] += entry.durationMs;
+            });
+
+            // Sort months chronologically
+            const sortedMonths = Object.keys(monthlyData).sort();
+
+            sortedMonths.forEach(yearMonth => {
+                const [year, monthNum] = yearMonth.split('-');
+                const monthName = new Date(year, parseInt(monthNum) - 1, 1).toLocaleString('en-US', { month: 'long' });
+                const totalDuration = monthlyData[yearMonth];
+
+                const analyticsElement = document.createElement('div');
+                analyticsElement.className = 'analytics-item';
+                analyticsElement.innerHTML = `
+                    <span class="font-medium text-gray-700">${monthName} ${year}:</span>
+                    <span class="text-blue-600 font-semibold">${formatDurationHuman(totalDuration)}</span>
+                `;
+                monthlyAnalyticsList.appendChild(analyticsElement);
+            });
+            console.log("Monthly analytics rendered.");
+        }
+
+        /**
+         * Shows a specific section and hides others.
+         * @param {HTMLElement} sectionToShow - The section element to display.
+         */
+        function showSection(sectionToShow) {
+            console.log("showSection called for:", sectionToShow.id);
+            [mainScreen, viewEntriesSection, analyticsSection].forEach(section => {
+                section.classList.add('hidden');
+            });
+            sectionToShow.classList.remove('hidden');
+
+            // Update active state for navigation buttons
+            document.querySelectorAll('.footer-nav-btn').forEach(btn => btn.classList.remove('active'));
+            if (sectionToShow === mainScreen) {
+                navHomeBtn.classList.add('active');
+            } else if (sectionToShow === viewEntriesSection) {
+                navViewEntriesBtn.classList.add('active');
+            } else if (sectionToShow === analyticsSection) {
+                navAnalyticsBtn.classList.add('active');
+            }
+            console.log("Section visibility updated.");
+        }
+
+        /**
+         * Opens the manual entry modal.
+         */
+        function openManualModal() {
+            console.log("openManualModal called.");
+            manualHoursInput.value = 0;
+            manualMinutesInput.value = 0;
+            manualDateInput.valueAsDate = new Date(); // Set to current date
+            manualNotesInput.value = '';
+            manualEntryModal.classList.add('active');
+        }
+
+        /**
+         * Closes the manual entry modal.
+         */
+        function closeManualModal() {
+            console.log("closeManualModal called.");
+            manualEntryModal.classList.remove('active');
+        }
+
+        /**
+         * Opens the edit entry modal with pre-filled data.
+         * @param {string} entryId - The ID of the entry to edit.
+         */
+        function openEditModal(entryId) {
+            console.log("openEditModal called for entryId:", entryId);
+            const entryToEdit = allTimeEntries.find(entry => entry.id === entryId);
+            if (!entryToEdit) {
+                showMessage("Entry not found for editing.", "error");
+                console.warn("Entry not found in allTimeEntries for ID:", entryId);
+                return;
+            }
+
+            editEntryIdInput.value = entryToEdit.id;
+            const totalMinutes = Math.floor(entryToEdit.durationMs / (1000 * 60));
+            editHoursInput.value = Math.floor(totalMinutes / 60);
+            editMinutesInput.value = totalMinutes % 60;
+            editDateInput.value = entryToEdit.date; //YYYY-MM-DD format
+            editNotesInput.value = entryToEdit.notes || '';
+
+            editEntryModal.classList.add('active');
+        }
+
+        /**
+         * Closes the edit entry modal.
+         */
+        function closeEditModal() {
+            console.log("closeEditModal called.");
+            editEntryModal.classList.remove('active');
+        }
+
+        /**
+         * Handles saving a manual time entry.
+         */
+        async function handleSaveManualEntry() {
+            console.log("handleSaveManualEntry called.");
+            const hours = parseInt(manualHoursInput.value) || 0;
+            const minutes = parseInt(manualMinutesInput.value) || 0;
+            const date = manualDateInput.value;
+            const notes = manualNotesInput.value.trim();
+
+            if (!date) {
+                showMessage("Please select a date for the manual entry.", "error");
+                console.warn("Manual entry: Date not selected.");
+                return;
+            }
+            if (hours === 0 && minutes === 0) {
+                showMessage("Manual entry must have a duration greater than zero.", "error");
+                return;
+            }
+
+            const durationMs = (hours * 3600 + minutes * 60) * 1000;
+            const newEntry = {
+                durationMs: durationMs,
+                type: 'manual',
+                date: date,
+                notes: notes,
+                createdAt: Date.now()
+            };
+            console.log("Attempting to add manual entry:", newEntry);
+            await addTimeEntry(newEntry);
+            closeManualModal();
+            showMessage("Manual entry saved!", "success");
+        }
+
+        /**
+         * Handles updating an existing time entry.
+         */
+        async function handleUpdateEntry() {
+            console.log("handleUpdateEntry called.");
+            const entryId = editEntryIdInput.value;
+            const hours = parseInt(editHoursInput.value) || 0;
+            const minutes = parseInt(editMinutesInput.value) || 0;
+            const date = editDateInput.value;
+            const notes = editNotesInput.value.trim();
+
+            if (!date) {
+                showMessage("Please select a date for the entry.", "error");
+                console.warn("Edit entry: Date not selected.");
+                return;
+            }
+            if (hours === 0 && minutes === 0) {
+                showMessage("Entry duration must be greater than zero.", "error");
+                return;
+            }
+
+            const durationMs = (hours * 3600 + minutes * 60) * 1000;
+            const updatedData = {
+                durationMs: durationMs,
+                date: date,
+                notes: notes
+            };
+            console.log("Attempting to update entry ID:", entryId, "with data:", updatedData);
+            await updateTimeEntry(entryId, updatedData);
+            closeEditModal();
+        }
+
+        // Event Listeners
+        startTimerBtn.addEventListener('click', startTimer);
+        stopTimerBtn.addEventListener('click', stopTimer);
+
+        saveManualBtn.addEventListener('click', handleSaveManualEntry);
+        cancelManualBtn.addEventListener('click', closeManualModal);
+
+        updateEntryBtn.addEventListener('click', handleUpdateEntry);
+        cancelEditBtn.addEventListener('click', closeEditModal);
+
+        // Navigation listeners (now only one set of nav buttons)
+        navHomeBtn.addEventListener('click', () => showSection(mainScreen));
+        navAddManualBtn.addEventListener('click', openManualModal);
+        navViewEntriesBtn.addEventListener('click', () => showSection(viewEntriesSection));
+        navAnalyticsBtn.addEventListener('click', () => showSection(analyticsSection));
+
+        // Initialize the app
+        window.onload = function() {
+            console.log("Window loaded. Initializing Firebase...");
+            initializeFirebase();
+            // Set current date for manual entry default
+            manualDateInput.valueAsDate = new Date();
+        };
+    </script>
+</body>
+</html>
