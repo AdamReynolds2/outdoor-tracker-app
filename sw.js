@@ -1,16 +1,17 @@
 // Define the name of your cache
-const CACHE_NAME = 'outdoor-tracker-cache-v1';
+const CACHE_NAME = 'outdoor-tracker-cache-v2'; // Increment cache version for updates
 
-// List the files to cache (your app's "app shell")
+// List the files to cache (your app's "app shell" and Firebase SDKs)
 const urlsToCache = [
     './', // Caches the index.html file itself
     'index.html',
     'https://cdn.tailwindcss.com', // Tailwind CSS CDN
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', // Google Fonts CSS
-    // Note: Firebase JS SDKs are imported as modules and are generally handled by the browser's HTTP cache.
-    // Explicitly caching them here can sometimes lead to issues with updates if not managed carefully.
-    // For simplicity and robustness, we'll rely on the browser's default caching for Firebase SDKs for now.
-    // If you experience issues with Firebase not loading offline, you might need to reconsider caching these.
+
+    // Firebase SDKs - Explicitly caching these is crucial for offline functionality
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js',
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
 ];
 
 // 1. Install event: Caches all the necessary assets for the app shell
@@ -47,42 +48,32 @@ self.addEventListener('activate', (event) => {
 
 // 3. Fetch event: Intercepts network requests
 self.addEventListener('fetch', (event) => {
-    // Only intercept requests for your app's assets.
-    // For Firebase/Google API calls, we typically want these to go to the network directly
-    // as they are dynamic and require live data/authentication.
     const requestUrl = new URL(event.request.url);
 
-    // If it's a request for your app's HTML or other static assets
+    // Strategy: Cache-first for app shell and Firebase SDKs
     if (urlsToCache.includes(requestUrl.pathname) || urlsToCache.includes(requestUrl.href)) {
         event.respondWith(
             caches.match(event.request)
                 .then((response) => {
                     // Cache hit - return response
                     if (response) {
-                        console.log('[Service Worker] Serving from cache:', requestUrl.pathname);
+                        console.log('[Service Worker] Serving from cache:', requestUrl.href);
                         return response;
                     }
                     // No cache hit - fetch from network
-                    console.log('[Service Worker] Fetching from network:', requestUrl.pathname);
+                    console.log('[Service Worker] Fetching from network (not in cache):', requestUrl.href);
                     return fetch(event.request);
                 })
                 .catch((error) => {
-                    console.error('[Service Worker] Fetch failed:', error);
-                    // You could return a fallback page here for offline
+                    console.error('[Service Worker] Fetch failed for cached item:', error);
+                    // You could return a fallback page here for offline if needed
                     // return caches.match('/offline.html');
                 })
         );
-    } else if (requestUrl.origin === self.location.origin) {
-        // For other local assets not explicitly listed in urlsToCache, try cache then network
-        event.respondWith(
-            caches.match(event.request).then(response => {
-                return response || fetch(event.request);
-            })
-        );
     } else {
-        // For all other requests (like Firebase API calls, external CDNs not cached),
-        // let them go to the network directly.
-        // This is crucial for Firebase to function correctly.
+        // For all other requests (like dynamic Firebase API calls for Firestore data),
+        // let them go to the network directly. Firebase SDK handles offline queuing internally.
+        console.log('[Service Worker] Bypassing cache for network request:', requestUrl.href);
         event.respondWith(fetch(event.request));
     }
 });
