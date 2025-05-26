@@ -579,11 +579,14 @@
                     notes: '', // Timer entries don't have notes by default
                     createdAt: Date.now()
                 };
-                console.log("Attempting to add timer entry:", newEntry);
-                await addTimeEntry(newEntry);
-                currentDurationMs = 0; // Reset for next timer session
-                timerDisplay.textContent = "00:00:00"; // Reset display
+                
+                // Optimistic UI update: Reset display immediately
+                currentDurationMs = 0; 
+                timerDisplay.textContent = "00:00:00"; 
                 showMessage("Time recorded!", "success");
+
+                // Now attempt to add to Firestore in the background
+                await addTimeEntry(newEntry);
             } else {
                 showMessage("Timer stopped, but no time was recorded.", "info");
             }
@@ -604,6 +607,8 @@
                 console.log("Document written with ID: ", docRef.id, "Data:", entryData);
             } catch (e) {
                 console.error("Error adding document: ", e);
+                // Even if there's an error, the UI was optimistically updated.
+                // You might want a more prominent error message here if the save truly failed.
                 showMessage("Failed to save entry. Please try again.", "error");
             }
         }
@@ -693,7 +698,7 @@
             updateTotalTime();
             renderEntriesList();
             renderMonthlyAnalytics();
-            console.log("updateUI finished.");
+            console.log("UI updated finished.");
         }
 
         /**
@@ -900,10 +905,13 @@
                 notes: notes,
                 createdAt: Date.now()
             };
-            console.log("Attempting to add manual entry:", newEntry);
-            await addTimeEntry(newEntry);
+            
+            // Optimistic UI update: Close modal and show success message immediately
             closeManualModal();
             showMessage("Manual entry saved!", "success");
+
+            // Now attempt to add to Firestore in the background
+            await addTimeEntry(newEntry);
         }
 
         /**
