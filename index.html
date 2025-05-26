@@ -375,7 +375,7 @@
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, enablePersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase config and app ID
         const appId = 'outdoor-tracking-data';
@@ -463,6 +463,23 @@
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
+
+                // Enable Firestore offline persistence
+                try {
+                    await enablePersistence(db);
+                    console.log("Firestore offline persistence enabled.");
+                } catch (err) {
+                    if (err.code === 'failed-precondition') {
+                        // Multiple tabs open, persistence can only be enabled in one.
+                        console.warn("Firestore persistence failed: Multiple tabs open. Not a critical error.");
+                    } else if (err.code === 'unimplemented') {
+                        // The browser doesn't support persistence.
+                        console.warn("Firestore persistence failed: Browser does not support it.");
+                    } else {
+                        console.error("Error enabling Firestore persistence:", err);
+                    }
+                }
+
                 auth = getAuth(app);
                 console.log("Firebase app initialized.");
 
