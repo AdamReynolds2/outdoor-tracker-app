@@ -973,6 +973,17 @@
             initializeFirebase();
             // Set current date for manual entry default
             manualDateInput.valueAsDate = new Date();
+
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js') // Assuming sw.js is in the root
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            }
         };
     </script>
 </body>
