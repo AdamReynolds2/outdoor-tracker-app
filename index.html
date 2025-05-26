@@ -5,119 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Outdoor Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            color: #334155;
+            background-color: #f0f4f8; /* Light gray background */
+            color: #374151; /* Darker gray text */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top for better content flow */
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px; /* More padding */
             box-sizing: border-box;
-            padding-bottom: 120px; /* Added padding to prevent content from being hidden by sticky footer */
         }
         .container {
             background-color: #ffffff;
-            border-radius: 1.5rem; /* More rounded */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Stronger shadow */
-            padding: 2rem;
+            border-radius: 1.5rem; /* Large border radius */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+            padding: 2.5rem; /* Increased padding */
             width: 100%;
-            max-width: 500px; /* Max width for larger screens */
+            max-width: 520px; /* Slightly wider */
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.75rem; /* More space between sections */
+            border: 1px solid #e5e7eb; /* Subtle border */
+        }
+        h1 {
+            font-size: 2.25rem; /* Larger heading */
+            font-weight: 700;
+            color: #1a202c; /* Even darker heading color */
+            text-align: center;
+            margin-bottom: 0; /* Adjusted spacing */
         }
         .timer-display {
-            font-size: 3.5rem; /* Larger timer font */
+            font-size: 4rem; /* Even larger timer */
             font-weight: 700;
-            color: #1e293b;
+            color: #2563eb; /* Primary blue for timer */
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.05em; /* Slightly tighter letter spacing */
         }
         .button-group {
             display: flex;
             gap: 1rem;
             justify-content: center;
-            flex-wrap: wrap; /* Allow wrapping for more buttons */
+            flex-wrap: wrap;
         }
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem; /* Rounded buttons */
+            padding: 0.85rem 2rem; /* More vertical padding */
+            border-radius: 0.75rem;
             font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07); /* Softer, slightly larger shadow */
+            border: none; /* Remove default button borders */
+            cursor: pointer;
         }
         .btn-primary {
             background-color: #3b82f6; /* Blue */
             color: white;
         }
         .btn-primary:hover:not(:disabled) {
-            background-color: #2563eb;
+            background-color: #2563eb; /* Darker blue on hover */
             transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
         }
         .btn-secondary {
-            background-color: #64748b; /* Gray */
+            background-color: #6b7280; /* Gray */
             color: white;
         }
         .btn-secondary:hover:not(:disabled) {
-            background-color: #475569;
+            background-color: #4b5563; /* Darker gray on hover */
             transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
         }
         .btn-success {
-            background-color: #22c55e; /* Green */
+            background-color: #10b981; /* Green */
             color: white;
         }
         .btn-success:hover:not(:disabled) {
-            background-color: #16a34a;
+            background-color: #059669; /* Darker green on hover */
             transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
         }
         .btn-danger {
             background-color: #ef4444; /* Red */
             color: white;
         }
         .btn-danger:hover:not(:disabled) {
-            background-color: #dc2626;
+            background-color: #dc2626; /* Darker red on hover */
             transform: translateY(-2px);
-        }
-        .btn-google {
-            background-color: #DB4437; /* Google Red */
-            color: white;
-        }
-        .btn-google:hover:not(:disabled) {
-            background-color: #C3352A;
-            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
         }
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.4; /* More transparent when disabled */
             cursor: not-allowed;
             box-shadow: none;
+            transform: none;
         }
         .section-header {
-            font-size: 1.5rem;
+            font-size: 1.75rem; /* Larger section header */
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 1rem;
+            color: #1f2937;
+            margin-bottom: 1.25rem;
             text-align: center;
         }
-        .entry-item {
-            background-color: #f8fafc;
-            padding: 1rem;
+        .entry-item, .analytics-item {
+            background-color: #f9fafb; /* Lighter card background */
+            padding: 1.25rem;
             border-radius: 0.75rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            border: 1px solid #f3f4f6; /* Very subtle border */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .entry-item-details {
-            flex-grow: 1;
+        .entry-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .entry-item-details p, .analytics-item span {
+            color: #4b5563; /* Slightly lighter text for details */
+        }
+        .entry-item-details p.font-semibold {
+            color: #1f2937; /* Darker for main duration */
         }
         .entry-item-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             justify-content: flex-end;
+            margin-top: 0.5rem;
         }
         .modal-overlay {
             position: fixed;
@@ -125,7 +142,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -140,135 +157,139 @@
         }
         .modal-content {
             background-color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            padding: 2rem;
+            border-radius: 1.25rem; /* More rounded modal corners */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); /* Stronger modal shadow */
+            padding: 2.5rem;
             width: 90%;
-            max-width: 450px;
+            max-width: 480px; /* Slightly wider modal */
             transform: translateY(-20px);
             transition: transform 0.3s ease-in-out;
+            border: 1px solid #e5e7eb; /* Subtle modal border */
         }
         .modal-overlay.active .modal-content {
             transform: translateY(0);
         }
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem; /* More space between form groups */
         }
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.6rem; /* Slightly more space below label */
             font-weight: 600;
-            color: #475569;
+            color: #374151; /* Darker label color */
+            font-size: 0.95rem;
         }
         .form-group input, .form-group textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.5rem;
+            padding: 0.9rem; /* More padding for inputs */
+            border: 1px solid #d1d5db; /* Lighter border */
+            border-radius: 0.6rem; /* More rounded inputs */
             box-sizing: border-box;
             font-size: 1rem;
-            color: #334155;
+            color: #374151;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Soft blue glow */
         }
         .message-box {
             position: fixed;
-            top: 20px;
+            top: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #334155;
+            background-color: #1f2937; /* Dark background for messages */
             color: white;
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.75rem;
             border-radius: 0.75rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            font-weight: 500;
         }
         .message-box.show {
             opacity: 1;
             visibility: visible;
         }
-        .analytics-item {
-            background-color: #f8fafc;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            margin-bottom: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .message-box.bg-green-500 {
+            background-color: #10b981; /* Success green */
         }
-        /* --- Sticky Navigation Styles --- */
+        .message-box.bg-red-500 {
+            background-color: #ef4444; /* Error red */
+        }
+
+        /* --- Responsive Navigation Styles --- */
         .footer-nav {
-            position: fixed; /* Make it sticky */
-            bottom: 0;      /* Stick to the bottom */
-            left: 0;        /* Align to the left edge */
-            width: 100%;    /* Take full width */
-            background-color: #ffffff; /* Solid background */
-            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Shadow to lift it from content */
-            z-index: 999;   /* Ensure it's above other content */
-            padding: 1rem 0; /* Vertical padding */
             display: flex;
-            flex-direction: column; /* Stack by default for mobile */
-            justify-content: center; /* Center horizontally when stacked */
-            align-items: center; /* Center items when stacked */
-            gap: 0.75rem; /* Space between stacked buttons */
-            border-top: 1px solid #e2e8f0; /* Keep the border top */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            padding-top: 1.75rem; /* More padding */
+            border-top: 1px solid #e5e7eb; /* Lighter border */
+            margin-top: 1.75rem;
         }
         .footer-nav-btn {
             background: none;
             border: none;
-            color: #64748b;
+            color: #6b7280; /* Gray text */
             font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem; /* More padding */
+            border-radius: 0.6rem; /* Slightly more rounded */
             cursor: pointer;
-            transition: color 0.2s, background-color 0.2s;
-            width: 100%; /* Make buttons full width when stacked */
-            max-width: 200px; /* Limit max width for stacked buttons */
+            transition: color 0.2s, background-color 0.2s, transform 0.2s;
+            width: 100%;
+            max-width: 200px;
             text-align: center;
+            font-size: 0.95rem;
         }
         .footer-nav-btn:hover {
-            color: #3b82f6;
-            background-color: #e2e8f0;
+            color: #3b82f6; /* Primary blue on hover */
+            background-color: #eef2ff; /* Very light blue background */
+            transform: translateY(-1px);
         }
         .footer-nav-btn.active {
             color: #3b82f6;
-            background-color: #e2e8f0;
+            background-color: #eef2ff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1); /* Subtle shadow for active button */
         }
 
-        /* Media query for larger screens (e.g., sm breakpoint in Tailwind) */
+        /* Media query for larger screens */
         @media (min-width: 640px) {
             .footer-nav {
-                flex-direction: row; /* Back to row for larger screens */
-                justify-content: space-around; /* Spread out again */
-                gap: 1rem; /* Adjust horizontal gap */
+                flex-direction: row;
+                justify-content: space-around;
+                gap: 1.25rem;
             }
             .footer-nav-btn {
-                width: auto; /* Revert to auto width for horizontal layout */
-                max-width: none; /* No max width restriction */
+                width: auto;
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Outdoor Tracker</h1>
+        <h1>Outdoor Tracker</h1>
 
-        <div id="main-screen" class="space-y-4">
+        <div id="main-screen" class="space-y-6">
             <div class="timer-display" id="timer-display">00:00:00</div>
             <div class="button-group">
-                <button id="start-timer-btn" class="btn btn-primary">Start</button>
-                <button id="stop-timer-btn" class="btn btn-danger" disabled>Stop</button>
+                <button id="start-timer-btn" class="btn btn-primary">Start Timer</button>
+                <button id="stop-timer-btn" class="btn btn-danger" disabled>Stop Timer</button>
             </div>
-            <h2 class="text-xl font-semibold text-center text-gray-700 mt-4">Total Time Spent Outside: <span id="total-time-display">0 hours 0 minutes</span></h2>
+            <p class="text-xl font-semibold text-center text-gray-700 mt-4">Total Time Spent Outside: <span id="total-time-display">0 hours 0 minutes</span></p>
 
+            <div class="footer-nav">
+                <button id="nav-home-btn" class="footer-nav-btn active">Home</button>
+                <button id="nav-add-manual-btn" class="footer-nav-btn">Add Manual</button>
+                <button id="nav-view-entries-btn" class="footer-nav-btn">Entries</button>
+                <button id="nav-analytics-btn" class="footer-nav-btn">Analytics</button>
             </div>
+        </div>
 
         <div id="manual-entry-modal" class="modal-overlay">
             <div class="modal-content">
@@ -287,7 +308,7 @@
                 </div>
                 <div class="form-group">
                     <label for="manual-notes">Notes (Optional):</label>
-                    <textarea id="manual-notes" rows="3" placeholder="e.g., Park walk, Gardening"></textarea>
+                    <textarea id="manual-notes" rows="3" placeholder="e.g., Park walk, Gardening, Reading outside"></textarea>
                 </div>
                 <div class="button-group mt-6">
                     <button id="save-manual-btn" class="btn btn-success">Save Entry</button>
@@ -314,7 +335,7 @@
                 </div>
                 <div class="form-group">
                     <label for="edit-notes">Notes (Optional):</label>
-                    <textarea id="edit-notes" rows="3"></textarea>
+                    <textarea id="edit-notes" rows="3" placeholder="e.g., Park walk, Gardening, Reading outside"></textarea>
                 </div>
                 <div class="button-group mt-6">
                     <button id="update-entry-btn" class="btn btn-success">Update Entry</button>
@@ -327,22 +348,27 @@
             <h2 class="section-header">All Entries</h2>
             <div id="entries-list" class="space-y-3">
                 </div>
+            <div class="footer-nav">
+                <button id="nav-home-btn-from-entries" class="footer-nav-btn">Home</button>
+                <button id="nav-add-manual-btn-from-entries" class="footer-nav-btn">Add Manual</l>
+                <button id="nav-view-entries-btn-from-entries" class="footer-nav-btn active">Entries</button>
+                <button id="nav-analytics-btn-from-entries" class="footer-nav-btn">Analytics</button>
             </div>
+        </div>
 
         <div id="analytics-section" class="hidden space-y-4">
             <h2 class="section-header">Monthly Analytics</h2>
             <div id="monthly-analytics-list" class="space-y-3">
                 </div>
+            <div class="footer-nav">
+                <button id="nav-home-btn-from-analytics" class="footer-nav-btn">Home</button>
+                <button id="nav-add-manual-btn-from-analytics" class="footer-nav-btn">Add Manual</button>
+                <button id="nav-view-entries-btn-from-analytics" class="footer-nav-btn">Entries</button>
+                <button id="nav-analytics-btn-from-analytics" class="footer-nav-btn active">Analytics</button>
             </div>
+        </div>
 
         <div id="message-box" class="message-box"></div>
-    </div>
-
-    <div class="footer-nav">
-        <button id="nav-home-btn" class="footer-nav-btn active">Home</button>
-        <button id="nav-add-manual-btn" class="footer-nav-btn">Add Manual</button>
-        <button id="nav-view-entries-btn" class="footer-nav-btn">Entries</button>
-        <button id="nav-analytics-btn" class="footer-nav-btn">Analytics</button>
     </div>
 
     <script type="module">
@@ -402,11 +428,23 @@
         const updateEntryBtn = document.getElementById('update-entry-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
-        // Navigation Buttons (Main Screen - now only one set of nav buttons)
+        // Navigation Buttons (Main Screen)
         const navHomeBtn = document.getElementById('nav-home-btn');
         const navAddManualBtn = document.getElementById('nav-add-manual-btn');
         const navViewEntriesBtn = document.getElementById('nav-view-entries-btn');
         const navAnalyticsBtn = document.getElementById('nav-analytics-btn');
+
+        // Navigation Buttons (From Entries Section)
+        const navHomeBtnFromEntries = document.getElementById('nav-home-btn-from-entries');
+        const navAddManualBtnFromEntries = document.getElementById('nav-add-manual-btn-from-entries');
+        const navViewEntriesBtnFromEntries = document.getElementById('nav-view-entries-btn-from-entries');
+        const navAnalyticsBtnFromEntries = document.getElementById('nav-analytics-btn-from-entries');
+
+        // Navigation Buttons (From Analytics Section)
+        const navHomeBtnFromAnalytics = document.getElementById('nav-home-btn-from-analytics');
+        const navAddManualBtnFromAnalytics = document.getElementById('nav-add-manual-btn-from-analytics');
+        const navViewEntriesBtnFromAnalytics = document.getElementById('nav-view-entries-btn-from-analytics');
+        const navAnalyticsBtnFromAnalytics = document.getElementById('nav-analytics-btn-from-analytics');
 
         // Timer variables
         let timerInterval;
@@ -770,10 +808,14 @@
             document.querySelectorAll('.footer-nav-btn').forEach(btn => btn.classList.remove('active'));
             if (sectionToShow === mainScreen) {
                 navHomeBtn.classList.add('active');
+                navHomeBtnFromEntries.classList.add('active'); // Keep consistency
+                navHomeBtnFromAnalytics.classList.add('active'); // Keep consistency
             } else if (sectionToShow === viewEntriesSection) {
                 navViewEntriesBtn.classList.add('active');
+                navViewEntriesBtnFromEntries.classList.add('active');
             } else if (sectionToShow === analyticsSection) {
                 navAnalyticsBtn.classList.add('active');
+                navAnalyticsBtnFromAnalytics.classList.add('active');
             }
             console.log("Section visibility updated.");
         }
@@ -846,6 +888,7 @@
             }
             if (hours === 0 && minutes === 0) {
                 showMessage("Manual entry must have a duration greater than zero.", "error");
+                console.warn("Manual entry: Duration is zero.");
                 return;
             }
 
@@ -905,11 +948,24 @@
         updateEntryBtn.addEventListener('click', handleUpdateEntry);
         cancelEditBtn.addEventListener('click', closeEditModal);
 
-        // Navigation listeners (now only one set of nav buttons)
+        // Navigation listeners (main screen)
         navHomeBtn.addEventListener('click', () => showSection(mainScreen));
         navAddManualBtn.addEventListener('click', openManualModal);
         navViewEntriesBtn.addEventListener('click', () => showSection(viewEntriesSection));
         navAnalyticsBtn.addEventListener('click', () => showSection(analyticsSection));
+
+        // Navigation listeners (from entries section)
+        navHomeBtnFromEntries.addEventListener('click', () => showSection(mainScreen));
+        navAddManualBtnFromEntries.addEventListener('click', openManualModal);
+        navViewEntriesBtnFromEntries.addEventListener('click', () => showSection(viewEntriesSection));
+        navAnalyticsBtnFromEntries.addEventListener('click', () => showSection(analyticsSection));
+
+        // Navigation listeners (from analytics section)
+        navHomeBtnFromAnalytics.addEventListener('click', () => showSection(mainScreen));
+        navAddManualBtnFromAnalytics.addEventListener('click', openManualModal);
+        navViewEntriesBtnFromAnalytics.addEventListener('click', () => showSection(viewEntriesSection));
+        navAnalyticsBtnFromAnalytics.addEventListener('click', () => showSection(analyticsSection));
+
 
         // Initialize the app
         window.onload = function() {
@@ -921,4 +977,3 @@
     </script>
 </body>
 </html>
-
