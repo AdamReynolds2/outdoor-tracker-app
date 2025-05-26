@@ -375,7 +375,10 @@
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, enablePersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import all from firestore and access enablePersistence from the imported object
+        import * as firestore from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        const { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } = firestore;
+
 
         // Global variables for Firebase config and app ID
         const appId = 'outdoor-tracking-data';
@@ -466,7 +469,7 @@
 
                 // Enable Firestore offline persistence
                 try {
-                    await enablePersistence(db);
+                    await firestore.enablePersistence(db); // Changed to access from 'firestore' object
                     console.log("Firestore offline persistence enabled.");
                 } catch (err) {
                     if (err.code === 'failed-precondition') {
